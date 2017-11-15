@@ -4,11 +4,9 @@ const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const path = require('path');
 const multer = require('multer');
+const consolidate = require('consolidate');
 
 const app = express();
-
-app.set('views', './views');
-app.set('view engine', 'ejs');
 
 // 1.解析cookie
 app.use(cookieParser('gskjladsmaklgsakd'));
@@ -29,15 +27,24 @@ const MulterHandler = multer({dest: './www/upload-cache'});
 app.use(MulterHandler.any());
 app.use(bodyParser.urlencoded({extended: false}));
 
-// 路由
+// 4.设置模板引擎
+// 输出什么东西
+app.set('view engine', 'html');
+// 模板文件在哪
+app.set('views', path.resolve(__dirname, './views'));
+// 使用那种引擎
+app.engine('html', consolidate.ejs);
+
+// 5.路由
 app.use('/api', require('./routes/api'));
 app.use('/admin', require('./routes/admin'));
 app.use('/index', require('./routes/index'));
 
-// 4.设置静态资源访问
-app.use(express.static(path.join(__dirname, '/www')));
 
-// 5.用户请求
+// 6.设置静态资源访问
+app.use(express.static(path.resolve(__dirname, '/www')));
+
+// 7.用户请求
 app.get('/', function (req, res) {
     res.redirect('/index');
 });
